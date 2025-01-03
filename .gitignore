@@ -1,0 +1,15 @@
+# Exclure l'environnement virtuel
+env/
+
+# Exclure les fichiers générés par Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Exclure les fichiers volumineux liés à PyTorch
+*.dll
+*.lib
+*.so
+
+# Exclure les fichiers temporaires ou de logs
+*.log

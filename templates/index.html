@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détection de maïs</title>
+</head>
+<body>
+    <h1>Uploader une image de maïs</h1>
+    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">Vérifier</button>
+    </form>
+    <p id="result"></p>
+</body>
+</html>
