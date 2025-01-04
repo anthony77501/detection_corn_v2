@@ -4,9 +4,7 @@ from PIL import Image
 from torchvision import transforms
 import torch.nn as nn
 from torchvision.models import mobilenet_v2
-import signal
-import sys
-from threading import Timer
+import os
 
 # Recréer l'architecture du modèle
 model = mobilenet_v2(pretrained=False)
@@ -25,48 +23,12 @@ transform = transforms.Compose([
 # Application Flask
 app = Flask(__name__)
 
-# Arrêter Flask automatiquement après un délai (en secondes) sans activité
-TIMEOUT = 300  # Par exemple, 300 secondes = 5 minutes
-
-def shutdown_server():
-    print("Arrêt automatique du serveur Flask après inactivité...")
-    sys.exit(0)
-
-# Déclencher l'arrêt automatique après TIMEOUT secondes
-t = Timer(TIMEOUT, shutdown_server)
-t.start()
-
-# Réinitialiser le timer à chaque requête
-@app.before_request
-def reset_timer():
-    global t
-    t.cancel()
-    t = Timer(TIMEOUT, shutdown_server)
-    t.start()
-
-# Interruption manuelle avec Ctrl+C
-def signal_handler(signal, frame):
-    print("\nArrêt du serveur Flask...")
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
+# Route principale
 @app.route('/')
 def home():
     return render_template('index.html')  # Assurez-vous d'avoir un fichier index.html dans 'templates/'
 
+# Route pour l'upload et la prédiction
 @app.route('/upload', methods=['POST'])
 def upload():
     if 'file' not in request.files:
@@ -90,5 +52,7 @@ def upload():
     except Exception as e:
         return jsonify({'error': f'Erreur lors du traitement de l\'image : {str(e)}'}), 500
 
+# Exécuter l'application sur le port requis par Render
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))  # Render fournit le port via la variable d'environnement PORT
+    app.run(host='0.0.0.0', port=port)
