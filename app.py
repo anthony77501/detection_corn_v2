@@ -13,6 +13,9 @@ model.classifier[1] = nn.Linear(model.last_channel, 2)  # 2 classes : mûr et no
 # Charger les poids sauvegardés
 try:
     model.load_state_dict(torch.load('modele_de_mais.pth', map_location=torch.device('cpu')))
+    model = torch.quantization.quantize_dynamic(
+        model, {torch.nn.Linear}, dtype=torch.qint8
+    )  # Optimisation mémoire
     model.eval()  # Passer le modèle en mode évaluation
     print("Modèle chargé avec succès.")
 except Exception as e:
@@ -20,13 +23,13 @@ except Exception as e:
 
 # Transformation des images
 transform = transforms.Compose([
-    transforms.Resize((128, 128)),  # Taille adaptée au modèle
+    transforms.Resize((128, 128)),  # Réduisez à 128x128 pixels pour minimiser la mémoire
     transforms.ToTensor(),
 ])
 
 # Application Flask
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # Limiter la taille des fichiers à 5 MB
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # Limite à 2 MB
 
 # Vérifier les extensions autorisées
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -51,14 +54,14 @@ def upload():
         file = request.files['file']
         app.logger.info(f"Fichier reçu : {file.filename}")
 
-        # Vérifier si le fichier est valide
+        # Vérifiez si le fichier est valide
         if not allowed_file(file.filename):
             app.logger.error("Format de fichier non supporté")
             return jsonify({'error': 'Format de fichier non supporté'}), 400
 
         # Charger et transformer l'image
         image = Image.open(file).convert('RGB')
-        app.logger.info("Image ouverte et convertie en RGB")
+        app.logger.info("Image convertie en RGB")
         image = transform(image).unsqueeze(0)  # Ajouter une dimension batch
         app.logger.info("Image transformée avec succès")
 
