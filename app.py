@@ -42,31 +42,39 @@ def home():
 # Route pour l'upload et la prédiction
 @app.route('/upload', methods=['POST'])
 def upload():
-    if 'file' not in request.files:
-        return jsonify({'error': 'Aucun fichier n\'a été téléchargé'}), 400
-
-    file = request.files['file']
-
-    if not allowed_file(file.filename):
-        return jsonify({'error': 'Format de fichier non supporté'}), 400
-
     try:
+        app.logger.info("Requête reçue pour /upload")
+        if 'file' not in request.files:
+            app.logger.error("Aucun fichier téléchargé")
+            return jsonify({'error': 'Aucun fichier téléchargé'}), 400
+
+        file = request.files['file']
+        app.logger.info(f"Fichier reçu : {file.filename}")
+
+        # Vérifier si le fichier est valide
+        if not allowed_file(file.filename):
+            app.logger.error("Format de fichier non supporté")
+            return jsonify({'error': 'Format de fichier non supporté'}), 400
+
         # Charger et transformer l'image
         image = Image.open(file).convert('RGB')
-        image = transform(image).unsqueeze(0)  # Ajouter une dimension pour le batch
+        app.logger.info("Image ouverte et convertie en RGB")
+        image = transform(image).unsqueeze(0)  # Ajouter une dimension batch
+        app.logger.info("Image transformée avec succès")
 
         # Faire une prédiction
         with torch.no_grad():
             output = model(image)
             _, predicted = torch.max(output, 1)
             result = 'Mûr' if predicted.item() == 1 else 'Non mûr'
+            app.logger.info(f"Prédiction réussie : {result}")
 
-        # Retourner le résultat
         return jsonify({'result': result})
     except Exception as e:
-        return jsonify({'error': f'Erreur lors du traitement de l\'image : {str(e)}'}), 500
+        app.logger.error(f"Erreur lors du traitement : {str(e)}")
+        return jsonify({'error': f"Erreur lors du traitement : {str(e)}"}), 500
 
-# Exécuter l'application sur le port requis par Render
+# Exécuter l'application sur le port requis par l'hébergement
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))  # Render fournit le port via la variable d'environnement PORT
+    port = int(os.environ.get('PORT', 8080))  # Assurez-vous que PORT est configuré dans l'environnement
     app.run(host='0.0.0.0', port=port)

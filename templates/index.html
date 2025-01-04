@@ -3,14 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détection de maïs</title>
+    <title>Détection de Maïs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <h1>Uploader une image de maïs</h1>
-    <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload">
-        <input type="file" name="file" accept="image/*" required>
-        <button type="submit">Vérifier</button>
-    </form>
-    <p id="result"></p>
+    <div class="container">
+        <h1>Détection de Maïs</h1>
+        <form id="upload-form">
+            <input type="file" id="file-input" name="file" accept="image/*" required>
+            <button type="submit">Vérifier</button>
+        </form>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('file-input');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                resultDiv.textContent = 'Analyse en cours...';
+                resultDiv.classList.remove('error');
+
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors du traitement : ' + response.statusText);
+                }
+
+                const data = await response.json();
+
+                if (data.result) {
+                    resultDiv.textContent = `Résultat : ${data.result}`;
+                } else if (data.error) {
+                    resultDiv.textContent = `Erreur : ${data.error}`;
+                    resultDiv.classList.add('error');
+                }
+            } catch (error) {
+                resultDiv.textContent = `Erreur : ${error.message}`;
+                resultDiv.classList.add('error');
+            }
+        });
+    </script>
 </body>
 </html>
