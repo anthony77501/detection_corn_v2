@@ -5,6 +5,10 @@ from torchvision import transforms
 import torch.nn as nn
 from torchvision.models import mobilenet_v2
 import os
+import logging
+
+# Configurer le niveau de logging
+logging.basicConfig(level=logging.INFO)
 
 # Recréer l'architecture du modèle
 model = mobilenet_v2(weights=None)  # Pas de poids pré-entraînés
@@ -17,13 +21,13 @@ try:
         model, {torch.nn.Linear}, dtype=torch.qint8
     )  # Optimisation mémoire
     model.eval()  # Passer le modèle en mode évaluation
-    print("Modèle chargé avec succès.")
+    logging.info("Modèle chargé avec succès.")
 except Exception as e:
-    print(f"Erreur lors du chargement du modèle : {str(e)}")
+    logging.error(f"Erreur lors du chargement du modèle : {str(e)}")
 
 # Transformation des images
 transform = transforms.Compose([
-    transforms.Resize((96, 96)),  # Réduisez à 96x96 pixels pour minimiser la mémoire
+    transforms.Resize((64, 64)),  # Réduisez à 64x64 pixels pour minimiser la mémoire
     transforms.ToTensor(),
 ])
 
@@ -66,7 +70,7 @@ def upload():
         app.logger.info(f"Image transformée : {image.size()}")
 
         # Vérifiez les dimensions d'entrée
-        if image.size()[-2:] != (96, 96):
+        if image.size()[-2:] != (64, 64):
             app.logger.error("Dimensions incorrectes pour l'image")
             return jsonify({'error': 'Dimensions incorrectes pour l\'image'}), 400
 
