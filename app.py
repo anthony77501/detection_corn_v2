@@ -23,7 +23,7 @@ except Exception as e:
 
 # Transformation des images
 transform = transforms.Compose([
-    transforms.Resize((128, 128)),  # Réduisez à 128x128 pixels pour minimiser la mémoire
+    transforms.Resize((96, 96)),  # Réduisez à 96x96 pixels pour minimiser la mémoire
     transforms.ToTensor(),
 ])
 
@@ -63,15 +63,23 @@ def upload():
         image = Image.open(file).convert('RGB')
         app.logger.info("Image convertie en RGB")
         image = transform(image).unsqueeze(0)  # Ajouter une dimension batch
-        app.logger.info("Image transformée avec succès")
+        app.logger.info(f"Image transformée : {image.size()}")
+
+        # Vérifiez les dimensions d'entrée
+        if image.size()[-2:] != (96, 96):
+            app.logger.error("Dimensions incorrectes pour l'image")
+            return jsonify({'error': 'Dimensions incorrectes pour l\'image'}), 400
 
         # Faire une prédiction
         with torch.no_grad():
             output = model(image)
+            app.logger.info(f"Sortie du modèle : {output}")
             _, predicted = torch.max(output, 1)
-            result = 'Mûr' if predicted.item() == 1 else 'Non mûr'
-            app.logger.info(f"Prédiction réussie : {result}")
+            app.logger.info(f"Classe prédite : {predicted.item()}")
 
+        # Résultat
+        result = 'Mûr' if predicted.item() == 1 else 'Non mûr'
+        app.logger.info(f"Résultat : {result}")
         return jsonify({'result': result})
     except Exception as e:
         app.logger.error(f"Erreur lors du traitement : {str(e)}")

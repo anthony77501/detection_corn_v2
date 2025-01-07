@@ -1,0 +1,13 @@
+Autorisation temporaire pour créer un environ-
+nement virtuel
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+
+.\env\Scripts\activate (dans le dossier détection_mais, active l'environnement virtuel)
+
+
+git add .
+git commit -m "Détails des modifications"
+git push
+ 
