@@ -3,8 +3,9 @@ nement virtuel
 
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
+.\env\Scripts\activate 
 
-.\env\Scripts\activate (dans le dossier détection_mais, active l'environnement virtuel)
+ (dans le dossier détection_mais, active l'environnement virtuel)
 
 
 git add .
