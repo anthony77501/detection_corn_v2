@@ -128,7 +128,31 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        header {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .language-selector img {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
         }
 
         h1 {
@@ -148,13 +172,7 @@
             margin-bottom: 1rem;
         }
 
-        label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        select, input[type="file"] {
+        input[type="file"] {
             width: 100%;
             padding: 0.5rem;
             margin-bottom: 1rem;
@@ -195,23 +213,21 @@
             border-radius: 8px;
             margin-top: 1rem;
         }
-
-        p {
-            margin: 0.5rem 0;
-        }
     </style>
 </head>
 <body>
-    <h1>{{ translations['title'] }}</h1>
+    <header>
+        <div class="language-selector">
+            <a href="/?lang=en">
+                <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="English">
+            </a>
+            <a href="/?lang=ja">
+                <img src="https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg" alt="日本語">
+            </a>
+        </div>
+    </header>
 
-    <!-- Formulaire de sélection de langue -->
-    <form method="get" action="/">
-        <label for="language">Choose language:</label>
-        <select name="lang" id="language" onchange="this.form.submit()">
-            <option value="en" {% if lang == 'en' %}selected{% endif %}>English</option>
-            <option value="ja" {% if lang == 'ja' %}selected{% endif %}>日本語</option>
-        </select>
-    </form>
+    <h1>{{ translations['title'] }}</h1>
 
     <p>{{ translations['upload_prompt'] }}</p>
 
