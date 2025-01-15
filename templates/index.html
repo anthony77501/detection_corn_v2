@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -105,6 +105,160 @@
             } catch (error) {
                 resultDiv.textContent = `Erreur : ${error.message}`;
                 resultDiv.classList.add('error');
+            }
+        });
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ translations['title'] }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9fafb;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #0057d9;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        form {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        select, input[type="file"] {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #0057d9;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0044b1;
+        }
+
+        #preview-container, #result-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        #image-preview {
+            max-width: 100%;
+            height: auto;
+            display: none;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        p {
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ translations['title'] }}</h1>
+
+    <!-- Formulaire de sélection de langue -->
+    <form method="get" action="/">
+        <label for="language">Choose language:</label>
+        <select name="lang" id="language" onchange="this.form.submit()">
+            <option value="en" {% if lang == 'en' %}selected{% endif %}>English</option>
+            <option value="ja" {% if lang == 'ja' %}selected{% endif %}>日本語</option>
+        </select>
+    </form>
+
+    <p>{{ translations['upload_prompt'] }}</p>
+
+    <!-- Formulaire d'upload -->
+    <form id="upload-form" method="post" action="/upload?lang={{ lang }}" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" onchange="previewImage(event)">
+        <button type="submit">{{ translations['button_text'] }}</button>
+    </form>
+
+    <!-- Prévisualisation de l'image -->
+    <div id="preview-container">
+        <p>{{ translations['preview'] }}</p>
+        <img id="image-preview" src="#" alt="Preview will appear here">
+    </div>
+
+    <!-- Résultat de la prédiction -->
+    <div id="result-container" style="display: none;">
+        <h2 id="prediction-result"></h2>
+        <p id="confidence-score"></p>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            const preview = document.getElementById('image-preview');
+            preview.src = URL.createObjectURL(event.target.files[0]);
+            preview.style.display = 'block';
+        }
+
+        // Gérer la réponse après l'envoi du formulaire
+        const form = document.getElementById('upload-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.error) {
+                alert(result.error);
+            } else {
+                document.getElementById('prediction-result').textContent = result.result;
+                document.getElementById('confidence-score').textContent = result.confidence;
+                document.getElementById('result-container').style.display = 'block';
             }
         });
     </script>
