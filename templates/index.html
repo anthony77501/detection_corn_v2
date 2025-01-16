@@ -253,12 +253,12 @@
     <header>
         <a href="/" class="logo">Corn Detector</a>
         <div class="language-selector">
-            <a href="/?lang=en">
-                <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="English">
-            </a>
-            <a href="/?lang=ja">
-                <img src="https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg" alt="日本語">
-            </a>
+            <form method="get" action="/">
+                <select name="lang" onchange="this.form.submit()">
+                    <option value="en" {% if lang == 'en' %}selected{% endif %} data-icon="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg">🇺🇸 English</option>
+                    <option value="ja" {% if lang == 'ja' %}selected{% endif %} data-icon="https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg">🇯🇵 日本語</option>
+                </select>
+            </form>
         </div>
     </header>
 
@@ -284,9 +284,9 @@
         <p id="confidence-score"></p>
     </div>
 
-    <footer>
+    <!-- <footer>
         <p>Powered by <a href="https://example.com">Your Service</a></p>
-    </footer>
+    </footer> -->
 
     <script>
         function previewImage(event) {
